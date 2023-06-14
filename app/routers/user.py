@@ -3,12 +3,10 @@ from ..database import get_db
 from fastapi import FastAPI, Body, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 
-router = APIRouter(
-    prefix="/users"
-)
+router = APIRouter(prefix="/users", tags=['Users'])
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):     
     
     # hash the pwd
     hashed_password = utils.hash(user.password)
