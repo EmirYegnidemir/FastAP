@@ -3,9 +3,9 @@ from fastapi import FastAPI, Body, Response, status, HTTPException, Depends
 from pydantic import BaseModel
 from random import randrange
 from psycopg2.extras import RealDictCursor
-from . import models, schemas, utils
-from .database import engine, get_db
-from .routers import post, user, auth
+import models, schemas, utils
+from database import engine, get_db
+from routers import post, user, auth
 from sqlalchemy.orm import Session
 
 import psycopg2

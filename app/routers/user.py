@@ -1,5 +1,5 @@
-from .. import models, schemas, utils
-from ..database import get_db
+import models, schemas, utils
+from database import get_db
 from fastapi import FastAPI, Body, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 
