@@ -2,15 +2,17 @@ import models, schemas, oauth2
 from database import get_db
 from fastapi import FastAPI, Body, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 router = APIRouter(prefix="/posts", tags=['Posts'])
 
 @router.get("/", response_model=List[schemas.Post])  
-def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user),
+              limit: int = 10, skip: int = 0, 
+              search: Optional[str]=""):
     # cursor.execute("""SELECT * FROM posts""")
     # posts = cursor.fetchall()
-    posts = db.query(models.Post).all()  # to get all the posts on the db, social media app logic
+    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()  
     #posts = db.query(models.Post).filter(  # to get all the posts of the current logged-in user
     #    models.Post.owner_id == current_user.id).all()
     return posts

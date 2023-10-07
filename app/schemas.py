@@ -7,16 +7,9 @@ class PostBase(BaseModel):
     content: str
     published: bool = True              # default value if not assigned
 
+
 class PostCreate(PostBase):
     pass
-
-class Post(PostBase):
-    id: int  
-    created_at: datetime
-    owner_id: int
-    
-    class Config:
-        orm_mode = True    
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -27,6 +20,15 @@ class UserOut(BaseModel):
     email: EmailStr
     created_at: datetime
     
+    class Config:
+        orm_mode = True  
+
+class Post(PostBase):
+    id: int  
+    created_at: datetime
+    owner_id: int
+    owner: UserOut
+
     class Config:
         orm_mode = True  
 
