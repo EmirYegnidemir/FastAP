@@ -1,4 +1,44 @@
-from app.database import Base
+# orm.py
+from sqlalchemy import MetaData, Table, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import registry, relationship
+from app.model import User, Post, Vote
+
+metadata = MetaData()
+
+users = Table(
+    'users', metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('email', String(255), unique=True),
+    Column('password', String(255)),
+)
+
+posts = Table(
+    'posts', metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('title', String(255)),
+    Column('content', String(255)),
+    Column('user_id', Integer, ForeignKey('users.id')),
+)
+
+votes = Table(
+    'votes', metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('user_id', Integer, ForeignKey('users.id')),
+    Column('post_id', Integer, ForeignKey('posts.id')),
+)
+
+mapper_registry = registry()
+def start_mappers():
+    mapper_registry.map_imperatively(User, users, properties={
+        'posts': relationship(Post, backref='user'),
+        'votes': relationship(Vote, backref='user')
+    })
+    mapper_registry.map_imperatively(Post, posts, properties={
+        'votes': relationship(Vote, backref='post')
+    })
+    mapper_registry.map_imperatively(Vote, votes)
+
+"""from app.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.sql import func
@@ -32,4 +72,4 @@ class Vote(Base):
     user_id = Column(Integer, ForeignKey(
         "users.id", ondelete="CASCADE"), primary_key=True)
     post_id = Column(Integer, ForeignKey(
-        "post.id", ondelete="CASCADE"), primary_key=True)
+        "post.id", ondelete="CASCADE"), primary_key=True)"""

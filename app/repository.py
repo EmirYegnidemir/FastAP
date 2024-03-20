@@ -1,4 +1,42 @@
-from app.models import User, Post, Vote
+import abc
+from typing import Set
+from app.orm import users, posts, votes
+from app.model import User, Post, Vote
+
+class AbstractRepository(abc.ABC):
+    def __init__(self):
+        self.seen = set()  # type: Set[User, Post, Vote]
+
+    def add(self, user: User):
+        self._add(user)
+        self.seen.add(user)
+
+    def get(self, id) -> User:
+        user = self._get(id)
+        if user:
+            self.seen.add(user)
+        return user
+
+    @abc.abstractmethod
+    def _add(self, entity):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _get(self, id) -> User:
+        raise NotImplementedError
+
+class SqlAlchemyRepository(AbstractRepository):
+    def __init__(self, session):
+        super().__init__()
+        self.session = session
+
+    def _add(self, user):
+        self.session.add(user)
+
+    def _get(self, id):
+        return self.session.query(User).filter_by(id=id).one()
+    
+    """from app.orm import User, Post, Vote
 
 class Repository:
     def __init__(self, session):
@@ -29,4 +67,4 @@ class Repository:
         return vote
 
     def get_vote_by_user_and_post(self, user_id, post_id):
-        return self.session.query(Vote).filter_by(user_id=user_id, post_id=post_id).one()
+        return self.session.query(Vote).filter_by(user_id=user_id, post_id=post_id).one()"""

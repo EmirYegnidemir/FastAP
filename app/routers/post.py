@@ -1,4 +1,4 @@
-import models, schemas, oauth2
+import app.orm as orm, schemas, oauth2
 from database import get_db
 from fastapi import FastAPI, Body, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
@@ -12,7 +12,7 @@ def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.
               search: Optional[str]=""):
     # cursor.execute("""SELECT * FROM posts""")
     # posts = cursor.fetchall()
-    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()  
+    posts = db.query(orm.Post).filter(orm.Post.title.contains(search)).limit(limit).offset(skip).all()  
     #posts = db.query(models.Post).filter(  # to get all the posts of the current logged-in user
     #    models.Post.owner_id == current_user.id).all()
     return posts
@@ -21,7 +21,7 @@ def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.
 def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # cursor.execute("""SELECT * FROM posts WHERE id = %s """, (str(id),))
     # post = cursor.fetchone()
-    post = db.query(models.Post).filter(models.Post.id == id).first()   # we could have used .all() but it is inefficient
+    post = db.query(orm.Post).filter(orm.Post.id == id).first()   # we could have used .all() but it is inefficient
     
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -43,7 +43,7 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db), curren
 
     # conn.commit()
     print(current_user)
-    new_post = models.Post(owner_id = current_user.id, **post.dict())
+    new_post = orm.Post(owner_id = current_user.id, **post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)    # retrieves and stores in the passed var
@@ -56,7 +56,7 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
     # deleted_post = cursor.fetchone()
 
     # conn.commit()
-    post_query = db.query(models.Post).filter(models.Post.id == id) 
+    post_query = db.query(orm.Post).filter(orm.Post.id == id) 
     post = post_query.first()
 
     if post == None:
@@ -80,7 +80,7 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
     
     # conn.commit()
 
-    post_query = db.query(models.Post).filter(models.Post.id == id)
+    post_query = db.query(orm.Post).filter(orm.Post.id == id)
     post = post_query.first()
      
     if post == None:

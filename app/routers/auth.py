@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
-import schemas, models, utils, oauth2
+import schemas, app.orm as orm, utils, oauth2
 from database import get_db
 
 
@@ -13,8 +13,8 @@ router = APIRouter(
 def login(user_credentials: OAuth2PasswordRequestForm = Depends() , db: Session = Depends(get_db)):    # user: schemas.UserCreate, instead we used
     
     # returns username and password
-    user = db.query(models.User).filter(
-        models.User.email == user_credentials.username).first()
+    user = db.query(orm.User).filter(
+        orm.User.email == user_credentials.username).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials")   # telling which part is incorrect makes the hacker's process easier

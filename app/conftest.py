@@ -1,14 +1,14 @@
-# conftest.py
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
-from app.database import Base  
+from app.orm import start_mappers, metadata
 
 @pytest.fixture(scope="module")
 def test_db():
     SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"  # in-memory SQLite 
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
-    Base.metadata.create_all(engine)
+    start_mappers()
+    metadata.create_all(engine)
     return engine
 
 @pytest.fixture(scope="module")
